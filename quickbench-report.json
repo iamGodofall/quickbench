@@ -1,0 +1,95 @@
+{
+  "report": {
+    "scores": {
+      "accuracy": 0.7,
+      "latency": {
+        "mean": 0,
+        "p95": 0
+      },
+      "cost": 0,
+      "fairness": {
+        "demographicParity": 0
+      }
+    },
+    "raw": [
+      {
+        "input": "This is great!",
+        "output": "positive",
+        "expected": "positive",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "Awful service.",
+        "output": "negative",
+        "expected": "negative",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "I love it",
+        "output": "negative",
+        "expected": "positive",
+        "latency": 0,
+        "correct": false
+      },
+      {
+        "input": "Terrible quality",
+        "output": "negative",
+        "expected": "negative",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "Good job",
+        "output": "positive",
+        "expected": "positive",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "Very disappointing",
+        "output": "negative",
+        "expected": "negative",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "Excellent!",
+        "output": "negative",
+        "expected": "positive",
+        "latency": 0,
+        "correct": false
+      },
+      {
+        "input": "Poor performance",
+        "output": "negative",
+        "expected": "negative",
+        "latency": 0,
+        "correct": true
+      },
+      {
+        "input": "Happy customer",
+        "output": "negative",
+        "expected": "positive",
+        "latency": 0,
+        "correct": false
+      },
+      {
+        "input": "Not recommended",
+        "output": "negative",
+        "expected": "negative",
+        "latency": 0,
+        "correct": true
+      }
+    ],
+    "metadata": {
+      "dataset": "D:\\quickbench\\demo\\dataset-sample.csv",
+      "totalRows": 10,
+      "timestamp": "2026-03-23T00:00:45.358Z",
+      "agent": "sentiment-mock-v1"
+    }
+  },
+  "signature": "b768e91e2def2e5856b3e11865e4dd6841e33345828762fd8a3567d42d1c7ce4",
+  "timestamp": "2026-03-23T00:00:45.360Z"
+}

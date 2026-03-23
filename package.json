@@ -1,0 +1,47 @@
+{
+  "name": "quickbench",
+  "version": "0.1.0",
+  "description": "Sovereign Agent Evaluation - Zero cloud, local-only benchmarks",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "quickbench": "./bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "demo": "ts-node demo/eval-example.ts",
+    "docker": "docker build -t quickbench . && docker run quickbench npm run demo",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "csv-parse": "^5.5.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.7.4",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "keywords": ["agent-evaluation", "benchmark", "sovereign-ai", "local-ai", "mlops"],
+  "author": "Capkit Team <team@capkit.ai>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "datasets/**/*",
+    "bin/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/capkit-ai/quickbench.git"
+  }
+}

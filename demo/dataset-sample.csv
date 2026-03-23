@@ -1,0 +1,11 @@
+input,expected
+"This is great!",positive
+"Awful service.",negative
+"I love it",positive
+"Terrible quality",negative
+"Good job",positive
+"Very disappointing",negative
+"Excellent!",positive
+"Poor performance",negative
+"Happy customer",positive
+"Not recommended",negative
