@@ -21,6 +21,9 @@ async function main() {
   console.log('📊 Accuracy:', result.scores.accuracy.toFixed(3));
   console.log('⏱️  Mean Latency:', result.scores.latency.mean.toFixed(0), 'ms');
   console.log('⚖️  Fairness (DP):', result.scores.fairness.demographicParity.toFixed(3));
+  console.log('\n🌐 Opening interactive chart...');
+  
+  require('open')('demo/report-viewer.html');
 }
 
 main().catch(console.error);

@@ -86,10 +86,10 @@
     "metadata": {
       "dataset": "D:\\quickbench\\demo\\dataset-sample.csv",
       "totalRows": 10,
-      "timestamp": "2026-03-23T00:00:45.358Z",
+      "timestamp": "2026-03-23T00:12:38.675Z",
       "agent": "sentiment-mock-v1"
     }
   },
-  "signature": "b768e91e2def2e5856b3e11865e4dd6841e33345828762fd8a3567d42d1c7ce4",
-  "timestamp": "2026-03-23T00:00:45.360Z"
+  "signature": "b96b5aa0c7319b304d13dc3fb25faf2424e9261e3e2433c65228fb2fcf974bbe",
+  "timestamp": "2026-03-23T00:12:38.676Z"
 }

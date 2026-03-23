@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quickbench Report Viewer - Interactive Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto; max-width: 900px; margin: 0 auto; padding: 2rem; line-height: 1.6; color: #333; }
+    h1 { color: #007acc; text-align: center; }
+    .header { text-align: center; margin-bottom: 2rem; }
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .metric-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem; border-radius: 12px; border-left: 5px solid #007acc; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .metric-card:hover { transform: translateY(-2px); }
+    .metric-value { font-size: 2.5rem; font-weight: bold; color: #007acc; margin: 0.5rem 0; }
+    .metric-label { font-size: 0.9rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
+    .badge { background: #28a745; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+    .signature { background: #dc3545; color: white; padding: 0.75rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; word-break: break-all; margin-top: 1rem; }
+    .raw-data { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; overflow-x: auto; }
+    pre { margin: 0; font-size: 0.85rem; line-height: 1.4; }
+    .timestamp { color: #6c757d; font-size: 0.9rem; }
+    @media (max-width: 768px) { .metric-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏃 Quickbench Dashboard</h1>
+    <p>Sovereign AI Agent Evaluation Report</p>
+  </div>
+  
+  <div id="metrics"></div>
+  <div id="metadata"></div>
+  <div id="signature-section"></div>
+  
+  <details class="raw-data">
+    <summary>📋 Raw Data (click to expand)</summary>
+    <pre id="raw-data"></pre>
+  </details>
+
+  <script>
+    fetch('../quickbench-report.json')
+      .then(r => r.json())
+      .then(data => {
+        const { report, signature, timestamp } = data;
+        const scores = report.scores;
+        
+        document.getElementById('metrics').innerHTML = `
+          <div class="metric-card">
+            <p class="metric-label">Accuracy</p>
+            <div class="metric-value">${(scores.accuracy * 100).toFixed(1)}%</div>
+            <span class="badge">${scores.accuracy.toFixed(3)}</span>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">Latency P95</p>
+            <div class="metric-value">${scores.latency.p95}ms</div>
+            <span class="badge">${scores.latency.mean.toFixed(0)}ms avg</span>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">Fairness (DP)</p>
+            <div class="metric-value">${scores.fairness.demographicParity.toFixed(3)}</div>
+            <span class="badge">Lower better</span>
+          </div>
+        `;
+        
+        document.getElementById('metadata').innerHTML = `
+          <div class="metric-card">
+            <h3>📈 Evaluation Summary</h3>
+            <p><strong>Dataset:</strong> ${report.metadata.dataset.split('\\\\').pop()}</p>
+            <p><strong>Rows Evaluated:</strong> ${report.metadata.totalRows}</p>
+            <p><strong>Agent:</strong> ${report.metadata.agent}</p>
+            <p class="timestamp"><strong>Signed:</strong> ${new Date(report.metadata.timestamp).toLocaleString()}</p>
+          </div>
+        `;
+        
+        document.getElementById('signature-section').innerHTML = `
+          <div class="metric-card">
+            <h3>🔒 Cryptographic Receipt</h3>
+            <div class="signature">${signature}</div>
+            <p style="font-size: 0.8rem; color: #6c757d;">HMAC-SHA256 tamper-proof signature</p>
+          </div>
+        `;
+        
+        document.getElementById('raw-data').textContent = JSON.stringify(report, null, 2);
+      })
+      .catch(e => {
+        document.getElementById('metrics').innerHTML = '<p style="color: red;">Report not found. Run <code>npm run demo</code> first.</p>';
+      });
+  </script>
+</body>
+</html>
