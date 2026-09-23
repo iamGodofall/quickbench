@@ -2,7 +2,7 @@ import { Dataset, loadDataset } from './datasets';
 import { signReport } from './report';
 
 /**
- * Evaluation metrics collected during benchmarking
+ * Evaluation metrics collected during benchmarking.
  */
 export interface EvaluationMetrics {
   accuracy: number;
@@ -10,14 +10,14 @@ export interface EvaluationMetrics {
     mean: number;
     p95: number;
   };
-  cost: number; // placeholder for token cost
+  cost: number;
   fairness: {
     demographicParity: number;
   };
 }
 
 /**
- * Complete evaluation result
+ * Complete evaluation result.
  */
 export interface EvaluationResult {
   scores: EvaluationMetrics;
@@ -27,6 +27,7 @@ export interface EvaluationResult {
     expected: string;
     latency: number;
     correct: boolean;
+    metadata?: Record<string, unknown>;
   }>;
   metadata: {
     dataset: string;
@@ -36,19 +37,14 @@ export interface EvaluationResult {
   };
 }
 
-/**
- * Agent function signature - input -> output
- */
 export type AgentFunction = (input: string) => Promise<string> | string;
 
-/**
- * Evaluation options
- */
 export interface RunEvaluationOptions {
   agent: AgentFunction;
   datasetPath?: string;
   dataset?: Dataset;
   agentName?: string;
+  signingKey?: string;
 }
 
 const calculateAccuracy = (correctCount: number, total: number): number => {
@@ -56,41 +52,46 @@ const calculateAccuracy = (correctCount: number, total: number): number => {
 };
 
 const calculateLatencyStats = (latencies: number[]): { mean: number; p95: number } => {
-  const mean = latencies.reduce((a, b) => a + b, 0) / latencies.length;
-  latencies.sort((a, b) => a - b);
-  const p95 = latencies[Math.floor(latencies.length * 0.95)] || 0;
-  return { mean, p95 };
+  if (latencies.length === 0) {
+    return { mean: 0, p95: 0 };
+  }
+
+  const sorted = [...latencies].sort((a, b) => a - b);
+  const mean = sorted.reduce((a, b) => a + b, 0) / sorted.length;
+  const p95Index = Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1);
+  return { mean, p95: sorted[p95Index] };
 };
 
-const calculateDemographicParity = (rawResults: any[]): number => {
-  // Simple demographic parity placeholder: std dev of accuracy across demographics
-  const groups = rawResults.reduce((acc: any, r: any) => {
-    const demo = r.metadata?.demographic || 'default';
-    acc[demo] = acc[demo] || { correct: 0, total: 0 };
+const calculateDemographicParity = (rawResults: EvaluationResult['raw']): number => {
+  const groups = rawResults.reduce<Record<string, { correct: number; total: number }>>((acc, r) => {
+    const demo = r.metadata?.demographic;
+    if (typeof demo !== 'string' || demo.length === 0) return acc;
+
+    acc[demo] ??= { correct: 0, total: 0 };
     acc[demo].total += 1;
     if (r.correct) acc[demo].correct += 1;
     return acc;
   }, {});
-  const accuracies = Object.values(groups).map((g: any) => g.correct / g.total);
+
+  const accuracies = Object.values(groups)
+    .filter(group => group.total > 0)
+    .map(group => group.correct / group.total);
+
+  if (accuracies.length < 2) return 0;
+
   const mean = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
-  const variance = accuracies.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / accuracies.length;
-  return Math.sqrt(variance); // std dev as fairness metric (lower better)
+  const variance = accuracies.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / accuracies.length;
+  return Math.sqrt(variance);
 };
 
-/**
- * Runs complete evaluation of agent against dataset
- * @param options - Evaluation configuration
- * @returns Signed evaluation result
- */
 export async function runEvaluation(options: RunEvaluationOptions): Promise<EvaluationResult> {
-  const { agent, datasetPath, dataset, agentName = 'unknown' } = options;
-  
+  const { agent, datasetPath, dataset, agentName = 'unknown', signingKey } = options;
+
   if (!dataset && !datasetPath) {
     throw new Error('Must provide dataset or datasetPath');
   }
 
   const ds = dataset || await loadDataset(datasetPath!);
-  
   const startTime = Date.now();
   const raw: EvaluationResult['raw'] = [];
   let correctCount = 0;
@@ -100,19 +101,20 @@ export async function runEvaluation(options: RunEvaluationOptions): Promise<Eval
     const rowStart = Date.now();
     const output = await agent(row.input);
     const latency = Date.now() - rowStart;
-    
-    const correct = output.trim() === row.expected.trim();
+    const normalizedOutput = String(output);
+    const correct = normalizedOutput.trim() === row.expected.trim();
+
     if (correct) correctCount++;
-    
+
     raw.push({
       input: row.input,
-      output: output.toString(),
+      output: normalizedOutput,
       expected: row.expected,
       latency,
       correct,
-      ...(row.metadata || {}),
+      metadata: row.metadata,
     });
-    
+
     latencies.push(latency);
   }
 
@@ -120,7 +122,7 @@ export async function runEvaluation(options: RunEvaluationOptions): Promise<Eval
   const scores: EvaluationMetrics = {
     accuracy: calculateAccuracy(correctCount, totalRows),
     latency: calculateLatencyStats(latencies),
-    cost: 0, // placeholder
+    cost: 0,
     fairness: {
       demographicParity: calculateDemographicParity(raw),
     },
@@ -130,29 +132,21 @@ export async function runEvaluation(options: RunEvaluationOptions): Promise<Eval
     scores,
     raw,
     metadata: {
-      dataset: datasetPath || 'inline',
+      dataset: datasetPath || ds.meta.name || 'inline',
       totalRows,
       timestamp: new Date(startTime).toISOString(),
       agent: agentName,
     },
   };
 
-  // Auto-sign report
-  await signReport(result);
-
+  await signReport(result, signingKey);
   return result;
 }
 
-/**
- * Creates a simple mock agent for demos
- * Binary classifier: returns "positive" or "negative" based on keyword heuristics
- */
 export function createMockAgent(): AgentFunction {
   return async (input: string): Promise<string> => {
-    // Deterministic mock: check for positive keywords
     const positiveKeywords = ['good', 'great', 'positive', 'yes', 'approve'];
     const hasPositive = positiveKeywords.some(kw => input.toLowerCase().includes(kw));
     return hasPositive ? 'positive' : 'negative';
   };
 }
-
