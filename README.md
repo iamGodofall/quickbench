@@ -9,7 +9,7 @@ npm install quickbench
 npm run demo
 ```
 
-**See signed report instantly** with accuracy, latency, fairness metrics.
+**See a signed report instantly** with accuracy, latency, and fairness metrics. Quickbench never ships a default signing secret.
 
 ## 📊 Metrics Explained
 
@@ -36,7 +36,7 @@ console.log(result.scores.accuracy); // 0.87
 ## 🔒 Security Model
 
 1. **Zero Cloud**: No APIs, no telemetry
-2. **Local Signing**: HMAC-SHA256 receipts
+2. **Local Signing**: HMAC-SHA256 receipts using a caller-controlled key
 3. **No PII**: Metadata-only tracking
 4. **Deterministic**: Fixed seeds, reproducible
 
