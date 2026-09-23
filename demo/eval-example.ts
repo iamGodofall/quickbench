@@ -9,7 +9,7 @@ async function main() {
   console.log('Dataset: demo/dataset-sample.csv (10 examples)');
   
   const datasetPath = path.join(process.cwd(), 'demo', 'dataset-sample.csv');
-  const agent = createMockAgent();\n  const signingKey = process.env.QUICKBENCH_SIGNING_KEY || 'quickbench-demo-local-key';
+  const agent = createMockAgent();\n  const signingKey = process.env.QUICKBENCH_SIGNING_KEY;\n  if (!signingKey) throw new Error('Set QUICKBENCH_SIGNING_KEY before running the demo.');
   
   const result = await runEvaluation({
     agent,
