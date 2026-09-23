@@ -9,12 +9,12 @@ async function main() {
   console.log('Dataset: demo/dataset-sample.csv (10 examples)');
   
   const datasetPath = path.join(process.cwd(), 'demo', 'dataset-sample.csv');
-  const agent = createMockAgent();
+  const agent = createMockAgent();\n  const signingKey = process.env.QUICKBENCH_SIGNING_KEY || 'quickbench-demo-local-key';
   
   const result = await runEvaluation({
     agent,
     datasetPath,
-    agentName: 'sentiment-mock-v1'
+    agentName: 'sentiment-mock-v1',\n    signingKey
   });
   
   console.log('\n✅ Evaluation complete! Signed report generated.');
