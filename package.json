@@ -38,7 +38,7 @@
     "ai-agent",
     "llm-eval"
   ],
-  "author": "Capkit Team <team@capkit.ai>",
+  "author": "Themba Enock Mpehle / Enock Labs",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
@@ -51,8 +51,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/capkit-ai/quickbench.git"
+    "url": "https://github.com/iamGodofall/quickbench.git"
   },
-  "homepage": "https://github.com/capkit-ai/quickbench#readme",
+  "homepage": "https://github.com/iamGodofall/quickbench#readme",
   "bugs": "https://github.com/capkit-ai/quickbench/issues"
 }
