@@ -1,7 +1,7 @@
 {
   "name": "quickbench",
   "version": "0.1.0",
-  "description": "🏃 Sovereign Agent Evaluation Framework - Zero cloud dependencies. Local-only, cryptographically signed benchmarks for AI agents. npm run demo = instant evals.",
+  "description": "Sovereign, local-first evaluation framework for AI agents with reproducible metrics and caller-controlled report signing.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "demo": "ts-node demo/eval-example.ts",
-    "docker": "docker build -t quickbench . && docker run quickbench npm run demo",
+    "docker": "docker build -t quickbench . && docker run --rm -e QUICKBENCH_SIGNING_KEY=quickbench-demo-local-key quickbench npm run demo",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -54,5 +54,5 @@
     "url": "https://github.com/iamGodofall/quickbench.git"
   },
   "homepage": "https://github.com/iamGodofall/quickbench#readme",
-  "bugs": "https://github.com/capkit-ai/quickbench/issues"
+  "bugs": "https://github.com/iamGodofall/quickbench/issues"
 }
